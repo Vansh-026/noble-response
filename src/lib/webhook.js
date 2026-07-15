@@ -1,4 +1,4 @@
-const WEBHOOK_URL = "http://localhost:5678/webhook/mychatapp";
+const WEBHOOK_URL = "http://localhost:5678/webhook/ca7456fb-42a7-4015-96b5-f2fb2e76b363";
 
 export function extractResponse(data) {
   if (data == null) return "";
