@@ -1,69 +1,46 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { AlertCircle, Menu, Plus, RefreshCw, Sparkle } from "lucide-react";
+import { AlertCircle, Plus, RefreshCw, Sparkle } from "lucide-react";
 
-import { Sidebar } from "./Sidebar";
 import { Composer } from "./Composer";
 import { Message } from "./Message";
 import { Welcome } from "./Welcome";
 import {
   createThread,
   getSessionId,
-  loadThreads,
-  saveThreads,
+  getServerSnapshot,
+  getThreadsSnapshot,
+  setThreads,
+  subscribeThreads,
   titleFromMessage,
+  updateThreadById,
 } from "@/lib/chat-store";
 import { sendToWebhook } from "@/lib/webhook";
 
 export function ChatApp({ threadId }) {
   const navigate = useNavigate();
-  const [threads, setThreads] = useState([]);
+  const threads = useSyncExternalStore(subscribeThreads, getThreadsSnapshot, getServerSnapshot);
   const [hydrated, setHydrated] = useState(false);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [collapsed, setCollapsed] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
   const abortRef = useRef(null);
   const scrollRef = useRef(null);
   const sessionId = useMemo(() => (hydrated ? getSessionId() : ""), [hydrated]);
 
-  // Hydrate from localStorage
   useEffect(() => {
-    setThreads(loadThreads());
     setHydrated(true);
   }, []);
 
-  // Persist
-  useEffect(() => {
-    if (hydrated) saveThreads(threads);
-  }, [threads, hydrated]);
-
   const activeThread = threadId ? threads.find((t) => t.id === threadId) : null;
-
-  const updateThread = useCallback((id, updater) => {
-    setThreads((prev) =>
-      prev.map((t) => (t.id === id ? { ...updater(t), updatedAt: Date.now() } : t))
-    );
-  }, []);
 
   const handleCreate = useCallback(() => {
     const t = createThread();
     setThreads((prev) => [t, ...prev]);
-    setMobileOpen(false);
     navigate({ to: "/c/$threadId", params: { threadId: t.id } });
   }, [navigate]);
 
-  const handleDelete = useCallback((id) => {
-    setThreads((prev) => prev.filter((t) => t.id !== id));
-  }, []);
-
-  const handleRename = useCallback((id, title) => {
-    setThreads((prev) => prev.map((t) => (t.id === id ? { ...t, title } : t)));
-  }, []);
-
-  // Auto-scroll on messages change
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
@@ -71,11 +48,10 @@ export function ChatApp({ threadId }) {
   }, [activeThread?.messages?.length, loading]);
 
   const doSend = useCallback(
-    async (text, targetThreadId) => {
+    async (text, targetThreadId, sid) => {
       setError(null);
       setLoading(true);
 
-      // Cancel previous
       if (abortRef.current) abortRef.current.abort();
       const controller = new AbortController();
       abortRef.current = controller;
@@ -83,14 +59,13 @@ export function ChatApp({ threadId }) {
       try {
         const reply = await sendToWebhook({
           message: text,
-          sessionId,
+          sessionId: sid,
           signal: controller.signal,
         });
 
-        // Simulated stream-in for polish
         const chunks = reply.match(/[\s\S]{1,3}/g) ?? [reply];
         const assistantId = crypto.randomUUID();
-        updateThread(targetThreadId, (t) => ({
+        updateThreadById(targetThreadId, (t) => ({
           ...t,
           messages: [
             ...t.messages,
@@ -109,14 +84,14 @@ export function ChatApp({ threadId }) {
           if (controller.signal.aborted) break;
           acc += c;
           await new Promise((r) => setTimeout(r, 8));
-          updateThread(targetThreadId, (t) => ({
+          updateThreadById(targetThreadId, (t) => ({
             ...t,
             messages: t.messages.map((m) =>
               m.id === assistantId ? { ...m, content: acc } : m
             ),
           }));
         }
-        updateThread(targetThreadId, (t) => ({
+        updateThreadById(targetThreadId, (t) => ({
           ...t,
           messages: t.messages.map((m) =>
             m.id === assistantId ? { ...m, streaming: false, content: reply } : m
@@ -131,36 +106,40 @@ export function ChatApp({ threadId }) {
         abortRef.current = null;
       }
     },
-    [sessionId, updateThread]
+    []
   );
 
   const handleSubmit = useCallback(async () => {
     const text = input.trim();
     if (!text) return;
 
-    let target = activeThread;
+    const sid = getSessionId();
     let targetId = threadId;
 
-    if (!target) {
-      target = createThread();
-      target.title = titleFromMessage(text);
-      targetId = target.id;
-      setThreads((prev) => [target, ...prev]);
-      navigate({ to: "/c/$threadId", params: { threadId: target.id } });
-    } else if (target.messages.length === 0) {
-      updateThread(target.id, (t) => ({ ...t, title: titleFromMessage(text) }));
-    }
-
-    updateThread(targetId, (t) => ({
-      ...t,
-      messages: [
-        ...t.messages,
+    if (!activeThread) {
+      const t = createThread();
+      t.title = titleFromMessage(text);
+      t.messages = [
         { id: crypto.randomUUID(), role: "user", content: text, timestamp: Date.now() },
-      ],
-    }));
+      ];
+      targetId = t.id;
+      setThreads((prev) => [t, ...prev]);
+      navigate({ to: "/c/$threadId", params: { threadId: t.id } });
+    } else {
+      if (activeThread.messages.length === 0) {
+        updateThreadById(targetId, (t) => ({ ...t, title: titleFromMessage(text) }));
+      }
+      updateThreadById(targetId, (t) => ({
+        ...t,
+        messages: [
+          ...t.messages,
+          { id: crypto.randomUUID(), role: "user", content: text, timestamp: Date.now() },
+        ],
+      }));
+    }
     setInput("");
-    await doSend(text, targetId);
-  }, [input, activeThread, threadId, doSend, navigate, updateThread]);
+    doSend(text, targetId, sid);
+  }, [input, activeThread, threadId, doSend, navigate]);
 
   const handleStop = () => {
     abortRef.current?.abort();
@@ -171,67 +150,23 @@ export function ChatApp({ threadId }) {
     if (!error) return;
     const { lastText, threadId: tid } = error;
     setError(null);
-    doSend(lastText, tid);
+    doSend(lastText, tid, getSessionId());
   };
 
   return (
     <div className="flex h-dvh w-full overflow-hidden bg-[#0B0B0B] text-foreground">
-      {/* Desktop sidebar */}
-      <div className="hidden md:flex h-full">
-        <Sidebar
-          threads={threads}
-          activeId={threadId}
-          onCreate={handleCreate}
-          onDelete={handleDelete}
-          onRename={handleRename}
-          collapsed={collapsed}
-          onToggle={() => setCollapsed((c) => !c)}
-        />
-      </div>
-
-      {/* Mobile sidebar overlay */}
-      {mobileOpen && (
-        <div className="fixed inset-0 z-40 md:hidden">
-          <div
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-            onClick={() => setMobileOpen(false)}
-          />
-          <div className="absolute left-0 top-0 h-full">
-            <Sidebar
-              threads={threads}
-              activeId={threadId}
-              onCreate={handleCreate}
-              onDelete={handleDelete}
-              onRename={handleRename}
-              collapsed={false}
-              onToggle={() => setMobileOpen(false)}
-            />
-          </div>
-        </div>
-      )}
-
       <main className="relative flex min-w-0 flex-1 flex-col">
-        {/* Top nav */}
         <header className="flex items-center justify-between border-b border-white/5 px-3 py-2.5 md:px-5">
           <div className="flex items-center gap-2">
-            <button
-              onClick={() => setMobileOpen(true)}
-              className="flex h-9 w-9 items-center justify-center rounded-lg hover:bg-white/5 md:hidden"
-              aria-label="Open menu"
-            >
-              <Menu className="h-5 w-5" />
-            </button>
-            <div className="flex items-center gap-2">
-              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-white/20 to-white/5 border border-white/10">
-                <Sparkle className="h-3.5 w-3.5" />
-              </div>
-              <h1 className="text-sm font-semibold tracking-tight">Smart Genius Assistant</h1>
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-white/20 to-white/5 border border-white/10">
+              <Sparkle className="h-3.5 w-3.5" />
             </div>
+            <h1 className="text-sm font-semibold tracking-tight">Smart Genius Assistant</h1>
           </div>
           <div className="flex items-center gap-1.5">
             <button
               onClick={handleCreate}
-              className="hidden sm:inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.03] px-2.5 py-1.5 text-xs font-medium hover:bg-white/[0.07] transition"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.03] px-2.5 py-1.5 text-xs font-medium hover:bg-white/[0.07] transition"
             >
               <Plus className="h-3.5 w-3.5" />
               New chat
@@ -242,7 +177,6 @@ export function ChatApp({ threadId }) {
           </div>
         </header>
 
-        {/* Messages / Welcome */}
         <div ref={scrollRef} className="flex-1 overflow-y-auto scrollbar-thin">
           {!activeThread || activeThread.messages.length === 0 ? (
             <div className="flex min-h-full flex-col items-center justify-center px-4 py-16">
@@ -256,9 +190,6 @@ export function ChatApp({ threadId }) {
                   disabled={loading}
                   loading={loading}
                 />
-                <p className="mt-3 text-center text-xs text-muted-foreground/60">
-                  Press Enter to send • Shift + Enter for a new line
-                </p>
               </div>
             </div>
           ) : (
@@ -307,7 +238,6 @@ export function ChatApp({ threadId }) {
           )}
         </div>
 
-        {/* Bottom composer when in thread */}
         {activeThread && activeThread.messages.length > 0 && (
           <div className="border-t border-white/5 bg-gradient-to-t from-[#0B0B0B] to-[#0B0B0B]/80 px-3 pb-4 pt-3 md:px-6">
             <div className="mx-auto w-full max-w-3xl">
@@ -319,9 +249,6 @@ export function ChatApp({ threadId }) {
                 disabled={loading}
                 loading={loading}
               />
-              <p className="mt-2 text-center text-[11px] text-muted-foreground/50">
-                Smart Genius Assistant can make mistakes. Verify important info.
-              </p>
             </div>
           </div>
         )}
