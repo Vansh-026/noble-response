@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { AlertCircle, Plus, RefreshCw, Sparkle } from "lucide-react";
+import { AlertCircle, Menu, Plus, RefreshCw, Sparkle } from "lucide-react";
 
+import { Sidebar } from "./Sidebar";
 import { Composer } from "./Composer";
 import { Message } from "./Message";
 import { Welcome } from "./Welcome";
@@ -35,11 +36,23 @@ export function ChatApp({ threadId }) {
 
   const activeThread = threadId ? threads.find((t) => t.id === threadId) : null;
 
+  const [collapsed, setCollapsed] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+
   const handleCreate = useCallback(() => {
     const t = createThread();
     setThreads((prev) => [t, ...prev]);
+    setMobileOpen(false);
     navigate({ to: "/c/$threadId", params: { threadId: t.id } });
   }, [navigate]);
+
+  const handleDelete = useCallback((id) => {
+    setThreads((prev) => prev.filter((t) => t.id !== id));
+  }, []);
+
+  const handleRename = useCallback((id, title) => {
+    setThreads((prev) => prev.map((t) => (t.id === id ? { ...t, title } : t)));
+  }, []);
 
   useEffect(() => {
     const el = scrollRef.current;
@@ -155,9 +168,48 @@ export function ChatApp({ threadId }) {
 
   return (
     <div className="flex h-dvh w-full overflow-hidden bg-[#0B0B0B] text-foreground">
+      <div className="hidden md:flex h-full">
+        <Sidebar
+          threads={threads}
+          activeId={threadId}
+          onCreate={handleCreate}
+          onDelete={handleDelete}
+          onRename={handleRename}
+          collapsed={collapsed}
+          onToggle={() => setCollapsed((c) => !c)}
+        />
+      </div>
+
+      {mobileOpen && (
+        <div className="fixed inset-0 z-40 md:hidden">
+          <div
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={() => setMobileOpen(false)}
+          />
+          <div className="absolute left-0 top-0 h-full">
+            <Sidebar
+              threads={threads}
+              activeId={threadId}
+              onCreate={handleCreate}
+              onDelete={handleDelete}
+              onRename={handleRename}
+              collapsed={false}
+              onToggle={() => setMobileOpen(false)}
+            />
+          </div>
+        </div>
+      )}
+
       <main className="relative flex min-w-0 flex-1 flex-col">
         <header className="flex items-center justify-between border-b border-white/5 px-3 py-2.5 md:px-5">
           <div className="flex items-center gap-2">
+            <button
+              onClick={() => setMobileOpen(true)}
+              className="flex h-9 w-9 items-center justify-center rounded-lg hover:bg-white/5 md:hidden"
+              aria-label="Open menu"
+            >
+              <Menu className="h-5 w-5" />
+            </button>
             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-white/20 to-white/5 border border-white/10">
               <Sparkle className="h-3.5 w-3.5" />
             </div>
