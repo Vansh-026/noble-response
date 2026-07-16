@@ -168,9 +168,48 @@ export function ChatApp({ threadId }) {
 
   return (
     <div className="flex h-dvh w-full overflow-hidden bg-[#0B0B0B] text-foreground">
+      <div className="hidden md:flex h-full">
+        <Sidebar
+          threads={threads}
+          activeId={threadId}
+          onCreate={handleCreate}
+          onDelete={handleDelete}
+          onRename={handleRename}
+          collapsed={collapsed}
+          onToggle={() => setCollapsed((c) => !c)}
+        />
+      </div>
+
+      {mobileOpen && (
+        <div className="fixed inset-0 z-40 md:hidden">
+          <div
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={() => setMobileOpen(false)}
+          />
+          <div className="absolute left-0 top-0 h-full">
+            <Sidebar
+              threads={threads}
+              activeId={threadId}
+              onCreate={handleCreate}
+              onDelete={handleDelete}
+              onRename={handleRename}
+              collapsed={false}
+              onToggle={() => setMobileOpen(false)}
+            />
+          </div>
+        </div>
+      )}
+
       <main className="relative flex min-w-0 flex-1 flex-col">
         <header className="flex items-center justify-between border-b border-white/5 px-3 py-2.5 md:px-5">
           <div className="flex items-center gap-2">
+            <button
+              onClick={() => setMobileOpen(true)}
+              className="flex h-9 w-9 items-center justify-center rounded-lg hover:bg-white/5 md:hidden"
+              aria-label="Open menu"
+            >
+              <Menu className="h-5 w-5" />
+            </button>
             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-white/20 to-white/5 border border-white/10">
               <Sparkle className="h-3.5 w-3.5" />
             </div>
