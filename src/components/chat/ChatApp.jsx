@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { AlertCircle, Plus, RefreshCw, Sparkle } from "lucide-react";
+import { AlertCircle, Menu, Plus, RefreshCw, Sparkle } from "lucide-react";
 
+import { Sidebar } from "./Sidebar";
 import { Composer } from "./Composer";
 import { Message } from "./Message";
 import { Welcome } from "./Welcome";
