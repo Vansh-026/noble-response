@@ -122,37 +122,57 @@ export function ChatApp({ threadId }) {
     []
   );
 
+  const handledRef = useRef(new Set());
+
   const handleSubmit = useCallback(async () => {
     const text = input.trim();
     if (!text) return;
 
     const sid = getSessionId();
-    let targetId = threadId;
 
     if (!activeThread) {
+      // Create thread + user message, then navigate. The new mounted route
+      // will pick up the trailing user message and run the send itself,
+      // so loading/error state lives on the correct component instance.
       const t = createThread();
+      const userMsgId = crypto.randomUUID();
       t.title = titleFromMessage(text);
       t.messages = [
-        { id: crypto.randomUUID(), role: "user", content: text, timestamp: Date.now() },
+        { id: userMsgId, role: "user", content: text, timestamp: Date.now() },
       ];
-      targetId = t.id;
+      setInput("");
       setThreads((prev) => [t, ...prev]);
       navigate({ to: "/c/$threadId", params: { threadId: t.id } });
-    } else {
-      if (activeThread.messages.length === 0) {
-        updateThreadById(targetId, (t) => ({ ...t, title: titleFromMessage(text) }));
-      }
-      updateThreadById(targetId, (t) => ({
-        ...t,
-        messages: [
-          ...t.messages,
-          { id: crypto.randomUUID(), role: "user", content: text, timestamp: Date.now() },
-        ],
-      }));
+      return;
     }
+
+    if (activeThread.messages.length === 0) {
+      updateThreadById(threadId, (t) => ({ ...t, title: titleFromMessage(text) }));
+    }
+    const userMsgId = crypto.randomUUID();
+    updateThreadById(threadId, (t) => ({
+      ...t,
+      messages: [
+        ...t.messages,
+        { id: userMsgId, role: "user", content: text, timestamp: Date.now() },
+      ],
+    }));
+    handledRef.current.add(userMsgId);
     setInput("");
-    doSend(text, targetId, sid);
+    doSend(text, threadId, sid);
   }, [input, activeThread, threadId, doSend, navigate]);
+
+  // Auto-run send when we arrive at a route whose last message is a user
+  // message with no assistant reply yet (e.g. right after navigating from `/`).
+  useEffect(() => {
+    if (!activeThread || activeThread.messages.length === 0) return;
+    const last = activeThread.messages[activeThread.messages.length - 1];
+    if (last.role !== "user") return;
+    if (handledRef.current.has(last.id)) return;
+    handledRef.current.add(last.id);
+    doSend(last.content, activeThread.id, getSessionId());
+  }, [activeThread, doSend]);
+
 
   const handleStop = () => {
     abortRef.current?.abort();
