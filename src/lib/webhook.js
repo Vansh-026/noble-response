@@ -1,4 +1,4 @@
-const WEBHOOK_URL = "https://protozoan-deck-antiques.ngrok-free.dev/webhook/ca7456fb-42a7-4015-96b5-f2fb2e76b363";
+const WEBHOOK_URL = "https://n8n-production-c2124.up.railway.app/webhook/mychatapp";
 
 export function extractResponse(data) {
   if (data == null) return "";
