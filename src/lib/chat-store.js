@@ -7,8 +7,7 @@ function safeParse(str, fallback) {
 
 export function loadThreads() {
   if (typeof window === "undefined") return [];
-  const raw = window.localStorage.getItem(KEY);
-  return safeParse(raw, []);
+  return safeParse(window.localStorage.getItem(KEY), []);
 }
 
 export function saveThreads(threads) {
@@ -39,4 +38,31 @@ export function createThread() {
 export function titleFromMessage(text) {
   const t = text.trim().replace(/\s+/g, " ");
   return t.length > 42 ? t.slice(0, 42) + "…" : t || "New chat";
+}
+
+// Module-level store so async work survives route remounts.
+let _threads = typeof window === "undefined" ? [] : loadThreads();
+const _listeners = new Set();
+const _serverSnap = [];
+
+export function getThreadsSnapshot() {
+  return _threads;
+}
+export function getServerSnapshot() {
+  return _serverSnap;
+}
+export function subscribeThreads(fn) {
+  _listeners.add(fn);
+  return () => _listeners.delete(fn);
+}
+export function setThreads(updater) {
+  const next = typeof updater === "function" ? updater(_threads) : updater;
+  _threads = next;
+  saveThreads(next);
+  _listeners.forEach((l) => l());
+}
+export function updateThreadById(id, updater) {
+  setThreads((prev) =>
+    prev.map((t) => (t.id === id ? { ...updater(t), updatedAt: Date.now() } : t))
+  );
 }
