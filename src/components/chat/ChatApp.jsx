@@ -36,11 +36,23 @@ export function ChatApp({ threadId }) {
 
   const activeThread = threadId ? threads.find((t) => t.id === threadId) : null;
 
+  const [collapsed, setCollapsed] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+
   const handleCreate = useCallback(() => {
     const t = createThread();
     setThreads((prev) => [t, ...prev]);
+    setMobileOpen(false);
     navigate({ to: "/c/$threadId", params: { threadId: t.id } });
   }, [navigate]);
+
+  const handleDelete = useCallback((id) => {
+    setThreads((prev) => prev.filter((t) => t.id !== id));
+  }, []);
+
+  const handleRename = useCallback((id, title) => {
+    setThreads((prev) => prev.map((t) => (t.id === id ? { ...t, title } : t)));
+  }, []);
 
   useEffect(() => {
     const el = scrollRef.current;
