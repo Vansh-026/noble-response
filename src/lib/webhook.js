@@ -1,4 +1,4 @@
-const WEBHOOK_URL = "https://n8n-production-c2124.up.railway.app/webhook/mychatapp";
+const WEBHOOK_URL = "https://n8n-v3-tjln.onrender.com/webhook/mychatapp";
 
 export function extractResponse(data) {
   if (data == null) return "";
