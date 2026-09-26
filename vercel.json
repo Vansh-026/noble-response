@@ -1,0 +1,15 @@
+{
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist/client",
+  "framework": "vite",
+  "rewrites": [
+    {
+      "source": "/api/chat",
+      "destination": "https://n8n-v3-tjln.onrender.com/webhook/mychatapp"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}

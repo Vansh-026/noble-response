@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useParams } from "@tanstack/react-router";
 import { ChatApp } from "@/components/chat/ChatApp";
 
 export const Route = createFileRoute("/c/$threadId")({
@@ -6,6 +6,6 @@ export const Route = createFileRoute("/c/$threadId")({
 });
 
 function ThreadRoute() {
-  const { threadId } = Route.useParams();
-  return <ChatApp threadId={threadId} />;
+  const params = useParams({ strict: false });
+  return <ChatApp threadId={params?.threadId} />;
 }

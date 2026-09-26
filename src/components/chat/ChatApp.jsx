@@ -76,7 +76,6 @@ export function ChatApp({ threadId }) {
           signal: controller.signal,
         });
 
-        const chunks = reply.match(/[\s\S]{1,3}/g) ?? [reply];
         const assistantId = crypto.randomUUID();
         updateThreadById(targetThreadId, (t) => ({
           ...t,
@@ -85,34 +84,19 @@ export function ChatApp({ threadId }) {
             {
               id: assistantId,
               role: "assistant",
-              content: "",
+              content: reply,
               timestamp: Date.now(),
-              streaming: true,
+              streaming: false,
             },
           ],
         }));
-
-        let acc = "";
-        for (const c of chunks) {
-          if (controller.signal.aborted) break;
-          acc += c;
-          await new Promise((r) => setTimeout(r, 8));
-          updateThreadById(targetThreadId, (t) => ({
-            ...t,
-            messages: t.messages.map((m) =>
-              m.id === assistantId ? { ...m, content: acc } : m
-            ),
-          }));
-        }
-        updateThreadById(targetThreadId, (t) => ({
-          ...t,
-          messages: t.messages.map((m) =>
-            m.id === assistantId ? { ...m, streaming: false, content: reply } : m
-          ),
-        }));
       } catch (e) {
         if (e.name !== "AbortError") {
-          setError({ message: "Couldn't reach the assistant. Please try again.", lastText: text, threadId: targetThreadId });
+          setError({
+            message: e.message || "Couldn't reach the assistant. Please check your n8n workflow.",
+            lastText: text,
+            threadId: targetThreadId,
+          });
         }
       } finally {
         setLoading(false);
