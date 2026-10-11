@@ -2,7 +2,11 @@ const KEY = "sga.threads.v1";
 const SESSION_KEY = "sga.sessionId.v1";
 
 function safeParse(str, fallback) {
-  try { return JSON.parse(str) ?? fallback; } catch { return fallback; }
+  try {
+    return JSON.parse(str) ?? fallback;
+  } catch {
+    return fallback;
+  }
 }
 
 export function loadThreads() {
@@ -63,6 +67,6 @@ export function setThreads(updater) {
 }
 export function updateThreadById(id, updater) {
   setThreads((prev) =>
-    prev.map((t) => (t.id === id ? { ...updater(t), updatedAt: Date.now() } : t))
+    prev.map((t) => (t.id === id ? { ...updater(t), updatedAt: Date.now() } : t)),
   );
 }

@@ -37,7 +37,9 @@ export async function sendToWebhook({ message, sessionId, signal }) {
   } catch (err) {
     // Fallback direct URL if local route is unavailable
     const directUrl =
-      (typeof import.meta !== "undefined" && import.meta.env && import.meta.env.VITE_N8N_WEBHOOK_URL) ||
+      (typeof import.meta !== "undefined" &&
+        import.meta.env &&
+        import.meta.env.VITE_N8N_WEBHOOK_URL) ||
       "https://n8n-v3-tjln.onrender.com/webhook/mychatapp";
     res = await fetch(directUrl, {
       method: "POST",

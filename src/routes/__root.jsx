@@ -1,10 +1,8 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import {
-  Outlet,
-  Link,
-  createRootRoute,
-  useRouter,
-} from "@tanstack/react-router";
+import { Outlet, Link, createRootRoute, useRouter } from "@tanstack/react-router";
+import { AuthProvider } from "@/context/AuthContext";
+import { ThemeProvider } from "@/context/ThemeContext";
+import { SettingsProvider } from "@/context/SettingsContext";
 
 function NotFoundComponent() {
   return (
@@ -35,9 +33,7 @@ function ErrorComponent({ error, reset }) {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4 text-foreground">
       <div className="max-w-xl text-center">
-        <h1 className="text-xl font-semibold tracking-tight">
-          This page didn't load
-        </h1>
+        <h1 className="text-xl font-semibold tracking-tight">This page didn't load</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Something went wrong loading this route.
         </p>
@@ -82,7 +78,13 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Outlet />
+      <ThemeProvider>
+        <SettingsProvider>
+          <AuthProvider>
+            <Outlet />
+          </AuthProvider>
+        </SettingsProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }

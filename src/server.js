@@ -6,9 +6,7 @@ let serverEntryPromise;
 
 async function getServerEntry() {
   if (!serverEntryPromise) {
-    serverEntryPromise = import("@tanstack/react-start/server-entry").then(
-      (m) => m.default ?? m
-    );
+    serverEntryPromise = import("@tanstack/react-start/server-entry").then((m) => m.default ?? m);
   }
   return serverEntryPromise;
 }
@@ -17,7 +15,8 @@ async function handleApiChat(request) {
   try {
     const bodyText = await request.text();
     const headers = { "Content-Type": "application/json" };
-    const primaryUrl = process.env.VITE_N8N_WEBHOOK_URL || "https://n8n-v3-tjln.onrender.com/webhook/mychatapp";
+    const primaryUrl =
+      process.env.VITE_N8N_WEBHOOK_URL || "https://n8n-v3-tjln.onrender.com/webhook/mychatapp";
     const fallbackUrl = primaryUrl.includes("/webhook/")
       ? primaryUrl.replace("/webhook/", "/webhook-test/")
       : primaryUrl.replace("/webhook-test/", "/webhook/");
@@ -55,7 +54,7 @@ async function handleApiChat(request) {
       {
         status: 502,
         headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
-      }
+      },
     );
   }
 }
