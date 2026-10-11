@@ -1,5 +1,12 @@
 // API Client for IntelliChat v1 with JWT token refresh rotation and SSE streaming support
 
+export const API_BASE = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
+
+export function getApiUrl(path) {
+  const normalized = path.startsWith("/") ? path : `/${path}`;
+  return API_BASE ? `${API_BASE}${normalized}` : normalized;
+}
+
 let currentAccessToken = null;
 
 export function setAccessToken(token) {
@@ -24,7 +31,7 @@ function onRefreshed(token) {
 
 async function refreshAccessToken() {
   try {
-    const res = await fetch("/api/v1/auth/refresh", {
+    const res = await fetch(getApiUrl("/api/v1/auth/refresh"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
@@ -48,7 +55,8 @@ async function refreshAccessToken() {
 }
 
 export async function apiFetch(endpoint, options = {}) {
-  const url = endpoint.startsWith("/api") ? endpoint : `/api/v1${endpoint}`;
+  const path = endpoint.startsWith("/api") ? endpoint : `/api/v1${endpoint}`;
+  const url = getApiUrl(path);
   const headers = { ...options.headers };
 
   // If not FormData, default to application/json
@@ -254,7 +262,7 @@ export const messagesApi = {
     { content, attachmentIds = [], model = "n8n-genius" },
     { onStart, onDelta, onComplete, onError, signal },
   ) {
-    const url = `/api/v1/conversations/${conversationId}/messages`;
+    const url = getApiUrl(`/api/v1/conversations/${conversationId}/messages`);
     const headers = {
       "Content-Type": "application/json",
       Accept: "text/event-stream",
@@ -349,7 +357,7 @@ export const messagesApi = {
   },
 
   async regenerate(messageId, { onStart, onDelta, onComplete, onError, signal }) {
-    const url = `/api/v1/messages/${messageId}/regenerate?stream=true`;
+    const url = getApiUrl(`/api/v1/messages/${messageId}/regenerate?stream=true`);
     const headers = {
       Accept: "text/event-stream",
     };
@@ -448,6 +456,6 @@ export const filesApi = {
   },
 
   getDownloadUrl(fileId) {
-    return `/api/v1/files/${fileId}/download`;
+    return getApiUrl(`/api/v1/files/${fileId}/download`);
   },
 };

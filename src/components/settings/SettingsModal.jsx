@@ -412,7 +412,7 @@ export function SettingsModal({ threads = [], onClearHistory }) {
                   <div className="font-semibold text-foreground">System Status</div>
                   <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
                     <span className="h-2 w-2 rounded-full bg-emerald-500" />
-                    <span>API v1 Online & Verified (MongoDB Connected)</span>
+                    <span>API v1 Online & Verified (Render: intelligentchat.onrender.com)</span>
                   </div>
                   <div className="text-[10px] text-muted-foreground font-mono pt-1">
                     Integration: n8n AI Workflow Webhook Active

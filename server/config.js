@@ -21,7 +21,7 @@ export const config = {
   JWT_REFRESH_EXPIRES_DAYS: parseInt(process.env.JWT_REFRESH_EXPIRES_DAYS || "7", 10),
   VITE_N8N_WEBHOOK_URL:
     process.env.VITE_N8N_WEBHOOK_URL || "https://n8n-v3-tjln.onrender.com/webhook/mychatapp",
-  FRONTEND_URL: process.env.FRONTEND_URL || "http://localhost:5173",
+  FRONTEND_URL: process.env.FRONTEND_URL || "https://intellichat-sigma.vercel.app",
   UPLOAD_DIR: path.resolve(__dirname, "../uploads"),
   MAX_FILE_SIZE_BYTES: 10 * 1024 * 1024, // 10MB
   RATE_LIMIT_WINDOW_MS: 15 * 60 * 1000, // 15 mins
