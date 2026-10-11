@@ -383,10 +383,11 @@ async function runTests() {
   } finally {
     // Cleanup test users from DB
     await User.deleteMany({ email: { $in: [userA_email, userB_email] } });
-    if (server) server.close();
     const mongoose = (await import("mongoose")).default;
     await mongoose.disconnect();
-    process.exit(0);
+    if (server) {
+      await new Promise((resolve) => server.close(resolve));
+    }
   }
 }
 
