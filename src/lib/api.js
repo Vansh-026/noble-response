@@ -1,8 +1,10 @@
 const RAW_API_BASE = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
 
 export const API_BASE =
+  !RAW_API_BASE ||
   RAW_API_BASE === "https://intelligentchat.onrender.com" ||
-  RAW_API_BASE === "https://intelligentresponse.onrender.com"
+  RAW_API_BASE === "https://intelligentresponse.onrender.com" ||
+  RAW_API_BASE === "https://intelligentchat-bqcg.onrender.com"
     ? "https://intelligentchat-bqcg.onrender.com"
     : RAW_API_BASE;
 
@@ -419,7 +421,7 @@ export const messagesApi = {
               if (eventName === "message.delta") onDelta?.(parsed.delta, parsed.accumulated);
               if (eventName === "message.complete") onComplete?.(parsed.content, parsed.message);
               if (eventName === "message.error") onError?.(new Error(parsed.error));
-            } catch {}
+            } catch { }
           }
         }
       }
