@@ -1,8 +1,24 @@
-export const API_BASE = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
+const RAW_API_BASE = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
+
+export const API_BASE =
+  RAW_API_BASE === "https://intelligentchat.onrender.com" ||
+  RAW_API_BASE === "https://intelligentresponse.onrender.com"
+    ? "https://intelligentchat-bqcg.onrender.com"
+    : RAW_API_BASE;
 
 export function getApiUrl(path) {
   const normalized = path.startsWith("/") ? path : `/${path}`;
-  return API_BASE ? `${API_BASE}${normalized}` : normalized;
+  if (typeof window !== "undefined") {
+    if (
+      window.location.hostname.endsWith(".onrender.com") ||
+      window.location.origin === API_BASE ||
+      !API_BASE
+    ) {
+      return normalized;
+    }
+  }
+  const base = API_BASE || "https://intelligentchat-bqcg.onrender.com";
+  return `${base}${normalized}`;
 }
 
 let currentAccessToken = null;

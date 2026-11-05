@@ -28,6 +28,8 @@ const allowedOrigins = [
   "https://intelligentresponse.vercel.app",
   "https://intellichatresponse.vercel.app",
   "https://intelligentresponse.onrender.com",
+  "https://intelligentchat-bqcg.onrender.com",
+  "https://intelligentchat.onrender.com",
 ];
 
 app.use(
