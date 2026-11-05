@@ -79,16 +79,13 @@ export function Message({
         isUser ? "justify-end" : "justify-start"
       }`}
     >
-      {/* Assistant Avatar */}
       {!isUser && (
         <div className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary border border-border shadow-xs">
           <Sparkle className="h-4 w-4" />
         </div>
       )}
 
-      {/* Message Content Container */}
       <div className={`flex max-w-[92%] md:max-w-[85%] flex-col ${isUser ? "items-end" : "items-start"}`}>
-        {/* Attachments Display */}
         {attachments && attachments.length > 0 && (
           <div className="mb-2 flex flex-wrap gap-2">
             {attachments.map((att, idx) => {
@@ -141,7 +138,6 @@ export function Message({
           </div>
         )}
 
-        {/* Bubble or Markdown */}
         {isUser ? (
           editing ? (
             <div className="w-full min-w-[280px] max-w-lg rounded-2xl border border-border bg-card p-3 text-card-foreground shadow-md">
@@ -204,7 +200,6 @@ export function Message({
           </div>
         )}
 
-        {/* Actions Bar */}
         <div
           className={`mt-1.5 flex items-center gap-2 text-[11px] text-muted-foreground transition-opacity ${
             isUser ? "flex-row-reverse" : ""
@@ -212,7 +207,6 @@ export function Message({
         >
           <span>{formatTime(timestamp)}</span>
 
-          {/* Copy Button */}
           {content && !streaming && (
             <button
               onClick={copy}
@@ -229,7 +223,6 @@ export function Message({
             </button>
           )}
 
-          {/* User Edit Button */}
           {isUser && !streaming && onEdit && (
             <button
               onClick={() => {
@@ -245,7 +238,6 @@ export function Message({
             </button>
           )}
 
-          {/* Assistant Actions: Regenerate & Feedback */}
           {!isUser && !streaming && (
             <>
               {onRegenerate && (
@@ -297,7 +289,6 @@ export function Message({
         </div>
       </div>
 
-      {/* User Avatar */}
       {isUser && (
         <div className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-secondary text-secondary-foreground border border-border shadow-xs">
           <User className="h-4 w-4" />

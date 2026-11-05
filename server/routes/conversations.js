@@ -9,10 +9,8 @@ import { deletePhysicalFile } from "../services/file.service.js";
 
 const router = express.Router();
 
-// Apply auth to all conversation routes
 router.use(requireAuth);
 
-// 1. DELETE /api/v1/conversations/trash (MUST BE BEFORE /:conversationId)
 router.delete("/trash", async (req, res, next) => {
   try {
     const trashed = await Conversation.find({
@@ -23,7 +21,6 @@ router.delete("/trash", async (req, res, next) => {
     const conversationIds = trashed.map((c) => c._id);
 
     if (conversationIds.length > 0) {
-      // Find associated messages and files
       const messages = await Message.find({
         conversationId: { $in: conversationIds },
       });
@@ -44,7 +41,7 @@ router.delete("/trash", async (req, res, next) => {
     return res.status(200).json({
       success: true,
       data: {
-        message: `Successfully emptied trash (${conversationIds.length} conversations removed).`,
+        message: `Emptied trash (${conversationIds.length} items).`,
       },
     });
   } catch (error) {
@@ -52,7 +49,6 @@ router.delete("/trash", async (req, res, next) => {
   }
 });
 
-// 2. POST /api/v1/conversations (Create conversation)
 router.post("/", async (req, res, next) => {
   try {
     const { title = "New chat", model = "n8n-genius" } = req.body;
@@ -73,11 +69,10 @@ router.post("/", async (req, res, next) => {
   }
 });
 
-// 3. GET /api/v1/conversations (List user's conversations with pagination & search)
 router.get("/", async (req, res, next) => {
   try {
     const limit = Math.min(Math.max(parseInt(req.query.limit || "30", 10), 1), 100);
-    const cursor = req.query.cursor; // ISO date string of updatedAt
+    const cursor = req.query.cursor;
     const search = (req.query.search || "").trim();
     const includeDeleted = req.query.trash === "true";
 
@@ -120,7 +115,6 @@ router.get("/", async (req, res, next) => {
   }
 });
 
-// 4. GET /api/v1/conversations/:conversationId
 router.get("/:conversationId", async (req, res, next) => {
   try {
     const { conversationId } = req.params;
@@ -146,7 +140,6 @@ router.get("/:conversationId", async (req, res, next) => {
   }
 });
 
-// 5. PATCH /api/v1/conversations/:conversationId (Rename)
 router.patch("/:conversationId", async (req, res, next) => {
   try {
     const { conversationId } = req.params;
@@ -170,7 +163,7 @@ router.patch("/:conversationId", async (req, res, next) => {
     }
 
     conversation.title = title.trim().slice(0, 100);
-    conversation.titleSource = "user"; // Flag that user customized the title
+    conversation.titleSource = "user";
     conversation.updatedAt = new Date();
     await conversation.save();
 
@@ -183,7 +176,6 @@ router.patch("/:conversationId", async (req, res, next) => {
   }
 });
 
-// 6. DELETE /api/v1/conversations/:conversationId (Soft delete or permanent)
 router.delete("/:conversationId", async (req, res, next) => {
   try {
     const { conversationId } = req.params;
@@ -203,7 +195,6 @@ router.delete("/:conversationId", async (req, res, next) => {
     }
 
     if (permanent || conversation.deletedAt !== null) {
-      // Permanent removal: clean messages and attachments
       const messages = await Message.find({ conversationId });
       const fileIds = messages.flatMap((m) => m.attachmentIds || []);
       if (fileIds.length > 0) {
@@ -222,7 +213,6 @@ router.delete("/:conversationId", async (req, res, next) => {
       });
     }
 
-    // Soft delete
     conversation.deletedAt = new Date();
     await conversation.save();
 
@@ -239,7 +229,6 @@ router.delete("/:conversationId", async (req, res, next) => {
   }
 });
 
-// 7. POST /api/v1/conversations/:conversationId/restore
 router.post("/:conversationId/restore", async (req, res, next) => {
   try {
     const { conversationId } = req.params;

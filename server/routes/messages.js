@@ -14,16 +14,11 @@ import {
   streamTextToSSE,
 } from "../services/ai.service.js";
 
-export const messagesRouter = express.Router(); // Mounted at /api/v1/messages
-export const conversationMessagesRouter = express.Router({ mergeParams: true }); // Mounted at /api/v1/conversations/:conversationId/messages
-
-// ==========================================
-// 1. /api/v1/conversations/:conversationId/messages
-// ==========================================
+export const messagesRouter = express.Router();
+export const conversationMessagesRouter = express.Router({ mergeParams: true });
 
 conversationMessagesRouter.use(requireAuth);
 
-// GET /api/v1/conversations/:conversationId/messages
 conversationMessagesRouter.get("/", async (req, res, next) => {
   try {
     const { conversationId } = req.params;
@@ -100,7 +95,6 @@ conversationMessagesRouter.post("/", async (req, res, next) => {
       throw ApiError.unprocessableEntity("Message content or attachments are required.");
     }
 
-    // Verify conversation ownership
     const conversation = await Conversation.findOne({
       _id: conversationId,
       userId: req.userId,
@@ -111,7 +105,6 @@ conversationMessagesRouter.post("/", async (req, res, next) => {
       throw ApiError.notFound("Conversation not found.");
     }
 
-    // Verify attachments ownership if provided
     let verifiedAttachments = [];
     if (attachmentIds && attachmentIds.length > 0) {
       const validIds = attachmentIds.filter((id) => mongoose.isValidObjectId(id));
@@ -128,7 +121,6 @@ conversationMessagesRouter.post("/", async (req, res, next) => {
     const generationId = uuidv4();
     const userMessageContent = (content || "").trim();
 
-    // 1. Persist user message
     const userMessage = await Message.create({
       conversationId,
       userId: req.userId,
@@ -139,7 +131,6 @@ conversationMessagesRouter.post("/", async (req, res, next) => {
       model,
     });
 
-    // 2. Auto-generate title if this is the first message or title is default
     if (conversation.titleSource === "default" || conversation.messageCount === 0) {
       const newTitle = generateTitle(userMessageContent || verifiedAttachments[0]?.originalName);
       conversation.title = newTitle;
@@ -151,7 +142,6 @@ conversationMessagesRouter.post("/", async (req, res, next) => {
     conversation.updatedAt = new Date();
     await conversation.save();
 
-    // 3. Prepare AI generation
     const abortController = new AbortController();
     registerGeneration(generationId, abortController);
 
@@ -160,7 +150,6 @@ conversationMessagesRouter.post("/", async (req, res, next) => {
       removeGeneration(generationId);
     });
 
-    // Handle Streaming SSE
     if (stream) {
       res.writeHead(200, {
         "Content-Type": "text/event-stream; charset=utf-8",
@@ -271,13 +260,8 @@ conversationMessagesRouter.post("/", async (req, res, next) => {
   }
 });
 
-// ==========================================
-// 2. /api/v1/messages/*
-// ==========================================
-
 messagesRouter.use(requireAuth);
 
-// PATCH /api/v1/messages/:messageId (Edit user message)
 messagesRouter.patch("/:messageId", async (req, res, next) => {
   try {
     const { messageId } = req.params;
@@ -313,7 +297,6 @@ messagesRouter.patch("/:messageId", async (req, res, next) => {
   }
 });
 
-// POST /api/v1/messages/:messageId/regenerate (Regenerate assistant response)
 messagesRouter.post("/:messageId/regenerate", async (req, res, next) => {
   try {
     const { messageId } = req.params;
@@ -436,11 +419,10 @@ messagesRouter.post("/:messageId/regenerate", async (req, res, next) => {
   }
 });
 
-// POST /api/v1/messages/:messageId/feedback (Thumbs up / thumbs down)
 messagesRouter.post("/:messageId/feedback", async (req, res, next) => {
   try {
     const { messageId } = req.params;
-    const { rating } = req.body; // 'positive' | 'negative' | null
+    const { rating } = req.body;
 
     if (!mongoose.isValidObjectId(messageId)) {
       throw ApiError.badRequest("Invalid message ID format.");

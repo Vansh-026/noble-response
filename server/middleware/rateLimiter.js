@@ -6,7 +6,7 @@ export const authLimiter = rateLimit({
   max: config.RATE_LIMIT_MAX_AUTH,
   standardHeaders: true,
   legacyHeaders: false,
-  skip: () => process.env.NODE_ENV === "test",
+  skip: (req) => req.method === "OPTIONS" || process.env.NODE_ENV === "test",
   message: {
     success: false,
     error: {
@@ -22,7 +22,7 @@ export const apiLimiter = rateLimit({
   max: config.RATE_LIMIT_MAX_API,
   standardHeaders: true,
   legacyHeaders: false,
-  skip: () => process.env.NODE_ENV === "test",
+  skip: (req) => req.method === "OPTIONS" || process.env.NODE_ENV === "test",
   message: {
     success: false,
     error: {

@@ -57,6 +57,19 @@ export function errorHandler(err, req, res, next) {
   let message = err.message || "An unexpected error occurred.";
   let details = err.details || [];
 
+  // Mongoose / MongoDB connection errors
+  if (
+    err.name === "MongooseServerSelectionError" ||
+    err.name === "MongoServerError" ||
+    err.message?.includes("buffering timed out") ||
+    err.message?.includes("bad auth")
+  ) {
+    statusCode = 503;
+    code = "DATABASE_UNAVAILABLE";
+    message =
+      "Database service is unavailable. Please verify MongoDB Atlas credentials and IP Access List (0.0.0.0/0).";
+  }
+
   // Mongoose validation error
   if (err.name === "ValidationError") {
     statusCode = 422;

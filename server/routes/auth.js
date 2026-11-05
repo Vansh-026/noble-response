@@ -17,7 +17,6 @@ import { ApiError } from "../middleware/errorHandler.js";
 
 const router = express.Router();
 
-// POST /api/v1/auth/register
 router.post("/register", authLimiter, async (req, res, next) => {
   try {
     const { name, email, password } = req.body;
@@ -43,7 +42,7 @@ router.post("/register", authLimiter, async (req, res, next) => {
       name: name.trim(),
       email: normalizedEmail,
       passwordHash,
-      emailVerified: true, // Auto-verify on registration for smooth UX
+      emailVerified: true,
     });
 
     const accessToken = generateAccessToken(user);
@@ -62,7 +61,6 @@ router.post("/register", authLimiter, async (req, res, next) => {
   }
 });
 
-// POST /api/v1/auth/login
 router.post("/login", authLimiter, async (req, res, next) => {
   try {
     const { email, password } = req.body;
@@ -102,7 +100,6 @@ router.post("/login", authLimiter, async (req, res, next) => {
   }
 });
 
-// POST /api/v1/auth/refresh
 router.post("/refresh", async (req, res, next) => {
   try {
     const rawToken = req.cookies?.refreshToken;
@@ -127,7 +124,6 @@ router.post("/refresh", async (req, res, next) => {
   }
 });
 
-// POST /api/v1/auth/logout
 router.post("/logout", async (req, res, next) => {
   try {
     const rawToken = req.cookies?.refreshToken;
@@ -145,7 +141,6 @@ router.post("/logout", async (req, res, next) => {
   }
 });
 
-// POST /api/v1/auth/logout-all
 router.post("/logout-all", requireAuth, async (req, res, next) => {
   try {
     await revokeAllSessionsForUser(req.userId);
@@ -160,7 +155,6 @@ router.post("/logout-all", requireAuth, async (req, res, next) => {
   }
 });
 
-// GET /api/v1/auth/me
 router.get("/me", requireAuth, async (req, res, next) => {
   try {
     return res.status(200).json({
@@ -174,7 +168,6 @@ router.get("/me", requireAuth, async (req, res, next) => {
   }
 });
 
-// POST /api/v1/auth/forgot-password
 router.post("/forgot-password", authLimiter, async (req, res, next) => {
   try {
     const { email } = req.body;
@@ -186,7 +179,7 @@ router.post("/forgot-password", authLimiter, async (req, res, next) => {
     if (user) {
       const resetToken = generateRandomToken(32);
       const tokenHash = hashToken(resetToken);
-      const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+      const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
 
       await VerificationToken.create({
         userId: user._id,
@@ -194,11 +187,8 @@ router.post("/forgot-password", authLimiter, async (req, res, next) => {
         purpose: "password_reset",
         expiresAt,
       });
-
-      console.log(`[Auth] Password reset token for ${user.email}: ${resetToken}`);
     }
 
-    // Generic response to prevent email enumeration
     return res.status(200).json({
       success: true,
       data: {
@@ -211,7 +201,6 @@ router.post("/forgot-password", authLimiter, async (req, res, next) => {
   }
 });
 
-// POST /api/v1/auth/reset-password
 router.post("/reset-password", authLimiter, async (req, res, next) => {
   try {
     const { token, newPassword } = req.body;
@@ -242,7 +231,6 @@ router.post("/reset-password", authLimiter, async (req, res, next) => {
     record.consumedAt = new Date();
     await record.save();
 
-    // Invalidate all active sessions for security
     await revokeAllSessionsForUser(user._id);
     clearRefreshTokenCookie(res);
 
@@ -257,7 +245,6 @@ router.post("/reset-password", authLimiter, async (req, res, next) => {
   }
 });
 
-// POST /api/v1/auth/verify-email
 router.post("/verify-email", async (req, res, next) => {
   try {
     const { token } = req.body;
@@ -288,7 +275,6 @@ router.post("/verify-email", async (req, res, next) => {
   }
 });
 
-// POST /api/v1/auth/resend-verification
 router.post("/resend-verification", authLimiter, async (req, res, next) => {
   try {
     const { email } = req.body;
@@ -304,7 +290,6 @@ router.post("/resend-verification", authLimiter, async (req, res, next) => {
         purpose: "email_verification",
         expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
       });
-      console.log(`[Auth] Verification token for ${user.email}: ${verifyToken}`);
     }
 
     return res.status(200).json({
@@ -316,9 +301,7 @@ router.post("/resend-verification", authLimiter, async (req, res, next) => {
   }
 });
 
-// GET /api/v1/auth/google
 router.get("/google", (req, res) => {
-  // Configurable Google OAuth redirect
   return res.status(501).json({
     success: false,
     error: {

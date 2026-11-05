@@ -17,7 +17,7 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": {
-        target: process.env.VITE_API_URL || "https://intelligentchat.onrender.com",
+        target: process.env.VITE_API_URL || "https://intelligentresponse.onrender.com",
         changeOrigin: true,
         secure: false,
       },

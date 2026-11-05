@@ -4,6 +4,7 @@
   "sideEffects": false,
   "type": "module",
   "scripts": {
+    "start": "node server/index.js",
     "dev": "concurrently -k -s first \"npm run server\" \"vite dev\"",
     "client": "vite dev",
     "server": "node server/index.js",

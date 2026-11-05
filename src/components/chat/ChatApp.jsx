@@ -52,7 +52,6 @@ export function ChatApp({ threadId }) {
   const abortRef = useRef(null);
   const scrollRef = useRef(null);
 
-  // 1. Load threads from Server if authenticated, otherwise fallback to local storage
   const fetchThreads = useCallback(async () => {
     if (isAuthenticated) {
       try {
@@ -71,12 +70,10 @@ export function ChatApp({ threadId }) {
     fetchThreads();
   }, [fetchThreads]);
 
-  // Active thread lookup
   const activeThread = useMemo(() => {
     return threadId ? threads.find((t) => t.id === threadId) : null;
   }, [threads, threadId]);
 
-  // 2. Load messages for active thread
   useEffect(() => {
     let active = true;
     async function loadConversationMessages() {
@@ -106,14 +103,12 @@ export function ChatApp({ threadId }) {
     };
   }, [threadId, isAuthenticated]);
 
-  // Auto-scroll on new messages or during generation
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
     el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
   }, [messages.length, loading]);
 
-  // Create new thread
   const handleCreate = useCallback(async () => {
     setError(null);
     setMobileOpen(false);
@@ -135,7 +130,6 @@ export function ChatApp({ threadId }) {
     navigate({ to: "/c/$threadId", params: { threadId: localT.id } });
   }, [isAuthenticated, navigate, threads]);
 
-  // Delete thread
   const handleDelete = useCallback(
     async (id) => {
       setThreads((prev) => prev.filter((t) => t.id !== id));
@@ -152,7 +146,6 @@ export function ChatApp({ threadId }) {
     [isAuthenticated, threads],
   );
 
-  // Rename thread
   const handleRename = useCallback(
     async (id, title) => {
       setThreads((prev) =>
@@ -171,7 +164,6 @@ export function ChatApp({ threadId }) {
     [isAuthenticated, threads],
   );
 
-  // Stop ongoing generation
   const handleStop = useCallback(() => {
     if (abortRef.current) {
       abortRef.current.abort();
@@ -182,7 +174,6 @@ export function ChatApp({ threadId }) {
     setLoading(false);
   }, [currentGenerationId, isAuthenticated]);
 
-  // Submit user message and stream assistant reply
   const handleSubmit = useCallback(
     async (text, attachments = []) => {
       const content = text.trim();
@@ -191,7 +182,6 @@ export function ChatApp({ threadId }) {
       setError(null);
       let targetThreadId = threadId;
 
-      // 1. If currently on '/' without a thread, create one first
       if (!targetThreadId) {
         if (isAuthenticated) {
           try {
@@ -218,7 +208,6 @@ export function ChatApp({ threadId }) {
         }
       }
 
-      // 2. Append optimistic user message
       const userMessageId = crypto.randomUUID();
       const userMessage = {
         id: userMessageId,
@@ -235,7 +224,6 @@ export function ChatApp({ threadId }) {
       const controller = new AbortController();
       abortRef.current = controller;
 
-      // Temporary assistant streaming placeholder
       const assistantMessageId = crypto.randomUUID();
       setMessages((prev) => [
         ...prev,
@@ -283,7 +271,6 @@ export function ChatApp({ threadId }) {
                     : m,
                 ),
               );
-              // Update thread preview and title in sidebar
               setThreads((prev) =>
                 prev.map((t) =>
                   t.id === targetThreadId
@@ -339,7 +326,6 @@ export function ChatApp({ threadId }) {
     [threadId, isAuthenticated, navigate],
   );
 
-  // Regenerate assistant reply
   const handleRegenerate = useCallback(async (messageId) => {
     setError(null);
     setLoading(true);
@@ -347,7 +333,6 @@ export function ChatApp({ threadId }) {
     const controller = new AbortController();
     abortRef.current = controller;
 
-    // Add fresh assistant response
     const assistantId = crypto.randomUUID();
     setMessages((prev) => [
       ...prev,
@@ -445,7 +430,6 @@ export function ChatApp({ threadId }) {
 
   return (
     <div className="flex h-dvh w-full overflow-hidden bg-background text-foreground transition-colors">
-      {/* Desktop Sidebar */}
       <div className="hidden md:flex h-full">
         <Sidebar
           threads={threads}
@@ -458,7 +442,6 @@ export function ChatApp({ threadId }) {
         />
       </div>
 
-      {/* Mobile Drawer */}
       {mobileOpen && (
         <div className="fixed inset-0 z-40 md:hidden">
           <div
@@ -480,9 +463,7 @@ export function ChatApp({ threadId }) {
         </div>
       )}
 
-      {/* Main Chat Workspace */}
       <main className="relative flex min-w-0 flex-1 flex-col">
-        {/* Top Header */}
         <header className="flex items-center justify-between border-b border-border bg-background/80 px-3 py-2.5 backdrop-blur-md md:px-5">
           <div className="flex items-center gap-2">
             <button
@@ -501,7 +482,6 @@ export function ChatApp({ threadId }) {
           </div>
 
           <div className="flex items-center gap-1.5 sm:gap-2">
-            {/* New Chat Button */}
             <button
               onClick={handleCreate}
               className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-2.5 py-1.5 text-xs font-medium hover:bg-accent text-foreground transition shadow-xs"
@@ -510,7 +490,6 @@ export function ChatApp({ threadId }) {
               <span className="hidden sm:inline">New chat</span>
             </button>
 
-            {/* Manage Settings Button */}
             <button
               onClick={() => openSettings("general")}
               className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-accent hover:text-foreground transition"
@@ -520,7 +499,6 @@ export function ChatApp({ threadId }) {
               <Settings className="h-4 w-4" />
             </button>
 
-            {/* Theme Toggle */}
             <button
               onClick={toggleTheme}
               className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-accent hover:text-foreground transition"
@@ -530,12 +508,11 @@ export function ChatApp({ threadId }) {
               {theme === "dark" ? <Sun className="h-4 w-4 text-amber-500" /> : <Moon className="h-4 w-4 text-indigo-500" />}
             </button>
 
-            {/* Account Info / Sign in button */}
             {isAuthenticated ? (
               <div
                 onClick={() => openSettings("account")}
                 className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary border border-border text-xs font-semibold cursor-pointer hover:bg-primary/20 transition shadow-xs"
-                title={`Signed in as ${user?.email} (Click for Settings)`}
+                title={`Signed in as ${user?.email}`}
               >
                 {user?.name ? user.name.slice(0, 2).toUpperCase() : "U"}
               </div>
@@ -551,7 +528,6 @@ export function ChatApp({ threadId }) {
           </div>
         </header>
 
-        {/* Message Scroll Container */}
         <div ref={scrollRef} className="flex-1 overflow-y-auto scrollbar-thin">
           {!threadId || messages.length === 0 ? (
             <div className="flex min-h-full flex-col items-center justify-center px-4 py-12">
@@ -625,7 +601,6 @@ export function ChatApp({ threadId }) {
           )}
         </div>
 
-        {/* Bottom Composer (when thread has messages) */}
         {threadId && messages.length > 0 && (
           <div className="border-t border-border bg-gradient-to-t from-background to-background/80 px-3 pb-4 pt-3 md:px-6">
             <div className="mx-auto w-full max-w-3xl">
@@ -643,10 +618,7 @@ export function ChatApp({ threadId }) {
         )}
       </main>
 
-      {/* Auth Modal */}
       <AuthModal />
-
-      {/* Settings Modal */}
       <SettingsModal threads={threads} onClearHistory={fetchThreads} />
     </div>
   );

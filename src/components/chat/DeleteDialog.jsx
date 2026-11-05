@@ -8,7 +8,6 @@ export function DeleteDialog({ isOpen, conversationTitle, onConfirm, onCancel, i
   return (
     <AnimatePresence>
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-        {/* Backdrop */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -17,7 +16,6 @@ export function DeleteDialog({ isOpen, conversationTitle, onConfirm, onCancel, i
           className="absolute inset-0 bg-black/70 backdrop-blur-sm"
         />
 
-        {/* Dialog */}
         <motion.div
           initial={{ opacity: 0, scale: 0.95, y: 10 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}

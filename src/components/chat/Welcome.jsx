@@ -49,7 +49,6 @@ export function Welcome({ onSelectPrompt }) {
         complete conversation history.
       </p>
 
-      {/* Suggestion Prompt Cards */}
       <div className="mt-8 grid w-full grid-cols-1 sm:grid-cols-2 gap-3 text-left">
         {suggestions.map((s, idx) => (
           <button

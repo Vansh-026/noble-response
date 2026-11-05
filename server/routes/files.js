@@ -16,7 +16,6 @@ const router = express.Router();
 
 router.use(requireAuth);
 
-// POST /api/v1/files/upload
 router.post("/upload", (req, res, next) => {
   uploadMiddleware.single("file")(req, res, async (err) => {
     if (err) return next(err);
@@ -60,7 +59,6 @@ router.post("/upload", (req, res, next) => {
   });
 });
 
-// GET /api/v1/files/:fileId (Metadata)
 router.get("/:fileId", async (req, res, next) => {
   try {
     const { fileId } = req.params;
@@ -94,7 +92,6 @@ router.get("/:fileId", async (req, res, next) => {
   }
 });
 
-// GET /api/v1/files/:fileId/download (Stream/download)
 router.get("/:fileId/download", async (req, res, next) => {
   try {
     const { fileId } = req.params;
@@ -130,7 +127,6 @@ router.get("/:fileId/download", async (req, res, next) => {
   }
 });
 
-// DELETE /api/v1/files/:fileId
 router.delete("/:fileId", async (req, res, next) => {
   try {
     const { fileId } = req.params;

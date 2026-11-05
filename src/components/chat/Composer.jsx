@@ -110,7 +110,6 @@ export function Composer({
 
   return (
     <div className="flex flex-col gap-2">
-      {/* Upload error banner */}
       {uploadError && (
         <div className="flex items-center justify-between rounded-xl border border-red-500/20 bg-red-500/10 px-3 py-2 text-xs text-red-600 dark:text-red-300">
           <span>{uploadError}</span>
@@ -120,7 +119,6 @@ export function Composer({
         </div>
       )}
 
-      {/* Attachment Previews */}
       {attachments.length > 0 && (
         <div className="flex flex-wrap gap-2 px-1">
           {attachments.map((att) => (
@@ -146,7 +144,6 @@ export function Composer({
         </div>
       )}
 
-      {/* Composer Input Bar */}
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -154,7 +151,6 @@ export function Composer({
         }}
         className="glass relative flex items-end gap-2 rounded-[24px] p-2 pl-3"
       >
-        {/* Hidden File Input */}
         <input
           ref={fileInputRef}
           type="file"
@@ -164,7 +160,6 @@ export function Composer({
           accept=".pdf,.png,.jpg,.jpeg,.webp,.gif,.txt,.md,.json,.csv,.js,.jsx,.ts,.tsx,.py,.html,.css,.xml"
         />
 
-        {/* Attachment Button */}
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
@@ -180,7 +175,6 @@ export function Composer({
           )}
         </button>
 
-        {/* Text Area */}
         <textarea
           ref={ref}
           value={value}
@@ -191,7 +185,6 @@ export function Composer({
           className="min-h-[32px] max-h-[200px] flex-1 resize-none bg-transparent py-1.5 text-[0.96rem] leading-relaxed text-foreground placeholder:text-muted-foreground/60 outline-none scrollbar-thin"
         />
 
-        {/* Send / Stop Button */}
         {loading ? (
           <button
             type="button"

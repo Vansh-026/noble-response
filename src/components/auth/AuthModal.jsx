@@ -54,7 +54,6 @@ export function AuthModal() {
   return (
     <AnimatePresence>
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-        {/* Backdrop */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -63,7 +62,6 @@ export function AuthModal() {
           className="absolute inset-0 bg-black/75 backdrop-blur-md"
         />
 
-        {/* Modal Card */}
         <motion.div
           initial={{ opacity: 0, scale: 0.95, y: 15 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -71,7 +69,6 @@ export function AuthModal() {
           transition={{ duration: 0.2 }}
           className="relative w-full max-w-md overflow-hidden rounded-2xl border border-border bg-card p-6 text-card-foreground shadow-2xl"
         >
-          {/* Close button */}
           <button
             onClick={closeAuthModal}
             className="absolute right-4 top-4 rounded-lg p-1.5 text-muted-foreground hover:bg-accent hover:text-foreground transition"
@@ -80,25 +77,22 @@ export function AuthModal() {
             <X className="h-5 w-5" />
           </button>
 
-          {/* Header */}
           <div className="flex flex-col items-center text-center">
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-border shadow-xs">
               <Sparkle className="h-6 w-6" />
             </div>
             <h2 className="mt-4 text-xl font-semibold tracking-tight text-foreground">
-              {authModalMode === "login" && "Welcome back to IntelliChat"}
-              {authModalMode === "register" && "Create your IntelliChat account"}
-              {authModalMode === "forgot" && "Reset your password"}
+              {authModalMode === "login" && "Welcome back"}
+              {authModalMode === "register" && "Create an account"}
+              {authModalMode === "forgot" && "Reset password"}
             </h2>
             <p className="mt-1 text-xs text-muted-foreground">
-              {authModalMode === "login" && "Sign in to access your chat history and files"}
-              {authModalMode === "register" &&
-                "Get started with full chat history and file attachments"}
+              {authModalMode === "login" && "Sign in to access your chats and history"}
+              {authModalMode === "register" && "Create an account to save conversations"}
               {authModalMode === "forgot" && "Enter your email to receive recovery instructions"}
             </p>
           </div>
 
-          {/* Tabs for Login / Register */}
           {authModalMode !== "forgot" && (
             <div className="mt-6 flex rounded-xl bg-muted/50 p-1 border border-border">
               <button
@@ -126,7 +120,6 @@ export function AuthModal() {
             </div>
           )}
 
-          {/* Form */}
           <form onSubmit={handleSubmit} className="mt-5 space-y-3.5">
             {error && (
               <div className="flex items-center gap-2 rounded-xl border border-red-500/20 bg-red-500/10 px-3.5 py-2.5 text-xs text-red-600 dark:text-red-400">
@@ -228,7 +221,6 @@ export function AuthModal() {
             </button>
           </form>
 
-          {/* Footer switch */}
           <div className="mt-5 text-center text-xs text-muted-foreground">
             {authModalMode === "login" && (
               <p>

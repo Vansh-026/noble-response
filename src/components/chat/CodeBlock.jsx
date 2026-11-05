@@ -16,7 +16,6 @@ export function CodeBlock({ language, code }) {
 
   return (
     <div className="relative my-3 overflow-hidden rounded-xl border border-white/10 bg-[#0d0d0d] font-mono text-xs shadow-lg">
-      {/* Code Header Bar */}
       <div className="flex items-center justify-between border-b border-white/10 bg-white/[0.04] px-4 py-2 text-muted-foreground select-none">
         <span className="text-[11px] font-semibold tracking-wide uppercase text-sidebar-foreground/70">
           {language || "code"}
@@ -40,7 +39,6 @@ export function CodeBlock({ language, code }) {
         </button>
       </div>
 
-      {/* Code Body */}
       <div className="overflow-x-auto p-4 text-[0.88rem] leading-relaxed scrollbar-thin text-zinc-100">
         <code>{code}</code>
       </div>

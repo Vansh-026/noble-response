@@ -153,7 +153,6 @@ export function Sidebar({
   return (
     <>
       <aside className="flex h-full w-[280px] shrink-0 flex-col border-r border-sidebar-border bg-sidebar select-none transition-colors">
-        {/* Header */}
         <div className="flex items-center justify-between p-3 border-b border-sidebar-border/50">
           <div className="flex items-center gap-2 px-1">
             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary border border-border shadow-xs">
@@ -190,7 +189,6 @@ export function Sidebar({
           </div>
         </div>
 
-        {/* New Chat Button */}
         <div className="p-3 pb-2">
           <button
             onClick={onCreate}
@@ -206,7 +204,6 @@ export function Sidebar({
           </button>
         </div>
 
-        {/* Search */}
         <div className="px-3 pb-2">
           <div className="relative">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
@@ -227,7 +224,6 @@ export function Sidebar({
           </div>
         </div>
 
-        {/* Conversation List */}
         <div className="flex-1 overflow-y-auto px-2 pb-3 scrollbar-thin">
           <div className="px-2.5 pb-1 pt-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
             History
@@ -298,7 +294,6 @@ export function Sidebar({
                         {t.title || "Untitled chat"}
                       </Link>
 
-                      {/* Accessible actions: Tap-friendly on touch & visible on hover */}
                       <div className="flex items-center gap-0.5">
                         <div className="relative">
                           <button
@@ -318,7 +313,6 @@ export function Sidebar({
                             <MoreVertical className="h-3.5 w-3.5" />
                           </button>
 
-                          {/* Dropdown Menu */}
                           {menuOpen && (
                             <div
                               ref={menuRef}
@@ -358,7 +352,6 @@ export function Sidebar({
           </AnimatePresence>
         </div>
 
-        {/* User Account & Session Footer */}
         <div className="border-t border-sidebar-border p-3">
           {isAuthenticated ? (
             <div className="flex items-center justify-between rounded-xl bg-card border border-border p-2 shadow-xs">
@@ -425,7 +418,6 @@ export function Sidebar({
         </div>
       </aside>
 
-      {/* Confirmation Dialog for Deletion */}
       <DeleteDialog
         isOpen={!!deleteTarget}
         conversationTitle={deleteTarget?.title}

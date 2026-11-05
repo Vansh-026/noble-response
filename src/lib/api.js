@@ -1,5 +1,3 @@
-// API Client for IntelliChat v1 with JWT token refresh rotation and SSE streaming support
-
 export const API_BASE = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
 
 export function getApiUrl(path) {

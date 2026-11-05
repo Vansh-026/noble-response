@@ -74,7 +74,6 @@ export function SettingsModal({ threads = [], onClearHistory }) {
   return (
     <AnimatePresence>
       <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4">
-        {/* Backdrop */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -83,7 +82,6 @@ export function SettingsModal({ threads = [], onClearHistory }) {
           className="absolute inset-0 bg-black/60 dark:bg-black/75 backdrop-blur-sm"
         />
 
-        {/* Modal Window */}
         <motion.div
           initial={{ opacity: 0, scale: 0.96, y: 10 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -91,7 +89,6 @@ export function SettingsModal({ threads = [], onClearHistory }) {
           transition={{ duration: 0.18 }}
           className="relative flex h-[85vh] max-h-[640px] w-full max-w-2xl flex-col sm:flex-row overflow-hidden rounded-2xl border border-border bg-card text-card-foreground shadow-2xl"
         >
-          {/* Mobile Top Bar */}
           <div className="flex items-center justify-between border-b border-border p-3.5 sm:hidden">
             <div className="flex items-center gap-2">
               <SettingsIcon className="h-4 w-4 text-primary" />
@@ -105,7 +102,6 @@ export function SettingsModal({ threads = [], onClearHistory }) {
             </button>
           </div>
 
-          {/* Sidebar Nav */}
           <div className="w-full sm:w-52 shrink-0 border-b sm:border-b-0 sm:border-r border-border bg-sidebar/50 p-2 sm:p-3 flex sm:flex-col gap-1 overflow-x-auto">
             <div className="hidden sm:flex items-center gap-2 px-2.5 py-2 font-semibold text-sm text-sidebar-foreground mb-1">
               <SettingsIcon className="h-4 w-4 text-primary" />
@@ -131,9 +127,7 @@ export function SettingsModal({ threads = [], onClearHistory }) {
             })}
           </div>
 
-          {/* Main Content Area */}
           <div className="relative flex flex-1 flex-col overflow-y-auto p-4 sm:p-6 scrollbar-thin">
-            {/* Desktop Close Button */}
             <button
               onClick={closeSettings}
               className="absolute right-4 top-4 hidden sm:flex rounded-lg p-1.5 text-muted-foreground hover:bg-accent hover:text-foreground transition"
@@ -142,17 +136,15 @@ export function SettingsModal({ threads = [], onClearHistory }) {
               <X className="h-4 w-4" />
             </button>
 
-            {/* TAB 1: GENERAL */}
             {activeTab === "general" && (
               <div className="space-y-6">
                 <div>
                   <h3 className="text-base font-semibold">General Preferences</h3>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    Customize your visual theme and interaction preferences.
+                    Customize visual theme and interaction preferences.
                   </p>
                 </div>
 
-                {/* Theme Selector */}
                 <div className="space-y-2">
                   <label className="text-xs font-medium text-foreground">Theme</label>
                   <div className="grid grid-cols-2 gap-2 sm:max-w-xs">
@@ -190,7 +182,6 @@ export function SettingsModal({ threads = [], onClearHistory }) {
                   </div>
                 </div>
 
-                {/* Streaming Toggle */}
                 <div className="flex items-center justify-between border-t border-border pt-4">
                   <div>
                     <div className="text-xs font-medium text-foreground">
@@ -208,7 +199,6 @@ export function SettingsModal({ threads = [], onClearHistory }) {
                   />
                 </div>
 
-                {/* Send on Enter Toggle */}
                 <div className="flex items-center justify-between border-t border-border pt-4">
                   <div>
                     <div className="text-xs font-medium text-foreground">
@@ -226,7 +216,6 @@ export function SettingsModal({ threads = [], onClearHistory }) {
                   />
                 </div>
 
-                {/* Font Size Selector */}
                 <div className="border-t border-border pt-4">
                   <div className="text-xs font-medium text-foreground mb-2">
                     Message Font Size
@@ -251,7 +240,6 @@ export function SettingsModal({ threads = [], onClearHistory }) {
               </div>
             )}
 
-            {/* TAB 2: CUSTOM INSTRUCTIONS */}
             {activeTab === "customization" && (
               <div className="space-y-5">
                 <div>
@@ -297,11 +285,10 @@ export function SettingsModal({ threads = [], onClearHistory }) {
               </div>
             )}
 
-            {/* TAB 3: ACCOUNT */}
             {activeTab === "account" && (
               <div className="space-y-5">
                 <div>
-                  <h3 className="text-base font-semibold">Account & Authentication</h3>
+                  <h3 className="text-base font-semibold">Account</h3>
                   <p className="text-xs text-muted-foreground mt-0.5">
                     Manage your profile and sign-in status.
                   </p>
@@ -321,7 +308,7 @@ export function SettingsModal({ threads = [], onClearHistory }) {
 
                     <div className="flex items-center gap-2 pt-2 border-t border-border text-xs text-emerald-600 dark:text-emerald-400">
                       <ShieldCheck className="h-4 w-4" />
-                      <span>Authenticated Session (JWT Token Active)</span>
+                      <span>Active session</span>
                     </div>
 
                     <div className="pt-2">
@@ -331,7 +318,7 @@ export function SettingsModal({ threads = [], onClearHistory }) {
                         className="inline-flex items-center gap-2 rounded-xl border border-red-500/20 bg-red-500/10 px-3.5 py-2 text-xs font-medium text-red-600 dark:text-red-400 hover:bg-red-500/20 transition"
                       >
                         <LogOut className="h-3.5 w-3.5" />
-                        <span>Sign out of all sessions</span>
+                        <span>Sign out</span>
                       </button>
                     </div>
                   </div>
@@ -340,9 +327,9 @@ export function SettingsModal({ threads = [], onClearHistory }) {
                     <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
                       <User className="h-5 w-5" />
                     </div>
-                    <div className="text-sm font-semibold text-foreground">You are browsing as a guest</div>
+                    <div className="text-sm font-semibold text-foreground">Guest session</div>
                     <p className="text-xs text-muted-foreground max-w-sm mx-auto">
-                      Sign in or create an account to automatically sync chats, attach documents, and access your history anywhere.
+                      Sign in to sync your conversation history across devices and keep your preferences saved.
                     </p>
                     <button
                       type="button"
@@ -353,29 +340,27 @@ export function SettingsModal({ threads = [], onClearHistory }) {
                       className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-xs font-medium text-primary-foreground hover:bg-primary/90 transition shadow-sm"
                     >
                       <LogIn className="h-4 w-4" />
-                      <span>Sign in or Register</span>
+                      <span>Sign in / Register</span>
                     </button>
                   </div>
                 )}
               </div>
             )}
 
-            {/* TAB 4: DATA CONTROLS */}
             {activeTab === "data" && (
               <div className="space-y-5">
                 <div>
-                  <h3 className="text-base font-semibold">Data Controls</h3>
+                  <h3 className="text-base font-semibold">Data</h3>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    Export your conversation records or manage cloud storage.
+                    Export conversations or clean up stored history.
                   </p>
                 </div>
 
-                {/* Export Data */}
                 <div className="flex items-center justify-between border-t border-border pt-4">
                   <div>
                     <div className="text-xs font-medium text-foreground">Export Conversations</div>
                     <div className="text-[11px] text-muted-foreground">
-                      Download a JSON file containing all your conversations and message histories
+                      Download a JSON file of your message history
                     </div>
                   </div>
                   <button
@@ -388,12 +373,11 @@ export function SettingsModal({ threads = [], onClearHistory }) {
                   </button>
                 </div>
 
-                {/* Empty Trash / Clear */}
                 <div className="flex items-center justify-between border-t border-border pt-4">
                   <div>
-                    <div className="text-xs font-medium text-red-600 dark:text-red-400">Empty Trash History</div>
+                    <div className="text-xs font-medium text-red-600 dark:text-red-400">Empty Trash</div>
                     <div className="text-[11px] text-muted-foreground">
-                      Permanently delete soft-deleted chats and clean up server storage
+                      Permanently delete removed chats
                     </div>
                   </div>
                   <button
@@ -406,26 +390,13 @@ export function SettingsModal({ threads = [], onClearHistory }) {
                     <span>{clearing ? "Emptying..." : "Empty Trash"}</span>
                   </button>
                 </div>
-
-                {/* Service Diagnostics */}
-                <div className="rounded-xl border border-border bg-muted/20 p-3.5 text-xs space-y-1">
-                  <div className="font-semibold text-foreground">System Status</div>
-                  <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
-                    <span className="h-2 w-2 rounded-full bg-emerald-500" />
-                    <span>API v1 Online & Verified (Render: intelligentchat.onrender.com)</span>
-                  </div>
-                  <div className="text-[10px] text-muted-foreground font-mono pt-1">
-                    Integration: n8n AI Workflow Webhook Active
-                  </div>
-                </div>
               </div>
             )}
 
-            {/* Saved Notification */}
             {savedToast && (
               <div className="fixed bottom-6 right-6 flex items-center gap-2 rounded-xl bg-primary text-primary-foreground px-3.5 py-2 text-xs font-medium shadow-lg">
                 <Check className="h-4 w-4" />
-                <span>Settings saved successfully!</span>
+                <span>Saved</span>
               </div>
             )}
           </div>
